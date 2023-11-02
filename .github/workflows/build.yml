@@ -18,6 +18,11 @@ jobs:
         with:
           repository: 'naiba/nezha'
 
+      - name: apply patch
+        run: |
+          wget -qO getversion.patch https://gist.githubusercontent.com/applexad/5b4a85f5fb0b4d58e28497a63eac7f0e/raw/eedc24c61c0b54b2eb86ba9acdca953b436f7391/getversion.patch
+          git apply getversion.patch
+
       - name: xgo build
         uses: crazy-max/ghaction-xgo@v2
         with:
@@ -58,7 +63,7 @@ jobs:
 
       - name: Generate release tag
         id: tag
-        run: echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+        run: echo "release_tag=$(cat service/singleton/singleton.go | grep -oP 'v\d+\.\d+\.\d+')" >> $GITHUB_OUTPUT
 
       - name: Create release
         uses: softprops/action-gh-release@v1
