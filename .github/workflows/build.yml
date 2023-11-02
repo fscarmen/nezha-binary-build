@@ -52,6 +52,9 @@ jobs:
           race: false
           ldflags: -s -w --extldflags '-static -fpic'
           buildmode: default
+      
+      - name: package resource dir
+        run: tar czf resource.tar.gz resource
 
       - name: Upload dist
         uses: actions/upload-artifact@main
@@ -60,6 +63,7 @@ jobs:
           path: |
               dist
               musldist
+              resource.tar.gz
 
       - name: Generate release tag
         id: tag
@@ -74,6 +78,7 @@ jobs:
           files: |
               dist/*
               musldist/*
+              resource.tar.gz
 
       - name: Remove old Releases
         uses: dev-drprasad/delete-older-releases@v0.1.0
