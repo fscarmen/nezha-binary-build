@@ -10,7 +10,9 @@ on:
 
 jobs:
   build:
+    name: Build Dashboard
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       contents: write
     steps:
@@ -74,3 +76,12 @@ jobs:
               dist/*
               musldist/*
               resource.tar.gz
+
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - run: |
+          echo "Already built latest nezha-dashboard. Exiting..."
+          exit 1
+
