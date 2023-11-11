@@ -20,15 +20,41 @@ jobs:
           export LOCALVERSION=$(curl --location --silent --fail --show-error "https://api.github.com/repos/applexad/nezha-binary-build/releases/latest" | grep -oP '"tag_name":\s*"\K[^"]+')
           wget -qO- https://github.com/applexad/nezha-binary-build/raw/main/compare.sh | bash
       - uses: actions/setup-go@v4
+        if: ${{ env.SYNCED == 0 }}
         with:
           go-version: "^1.21.3"
       - name: Unit test
+        if: ${{ env.SYNCED == 0 }}
         run: |
           go test -v ./...
       - name: Build test
+        if: ${{ env.SYNCED == 0 }}
         run: |
           go build cmd/dashboard/main.go
       - name: Run Gosec Security Scanner
+        if: ${{ env.SYNCED == 0 }}
         uses: securego/gosec@master
         with:
           args: --exclude=G104,G402 ./...
+          name: Trigger automation tests
+      - name: Trigger release
+        if: ${{ env.SYNCED == 0 }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PAT_TOKEN }}
+          script: |
+              await github.rest.actions.createWorkflowDispatch({
+              owner: 'applexad',
+              repo: 'nezha-binary-build',
+              workflow_id: 'build.yml',
+              ref: 'main'
+              })
+      - name: Delete workflow runs
+        if: ${{ env.SYNCED == 1 }}
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 1
+          keep_minimum_runs: 8
+      

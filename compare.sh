@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [[ "$LOCALVERSION" != "$REMOTEVERSION" ]]; then
-    exit 0
+if [[ "$LOCALVERSION" == "$REMOTEVERSION" ]]; then
+    echo "SYNCED=1" >> $GITHUB_ENV
 else
-    exit 1
+    echo "SYNCED=0" >> $GITHUB_ENV
 fi
